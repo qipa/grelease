@@ -1,0 +1,66 @@
+云鸟发布系统配置及使用说明
+
+a、配置
+
+1、stash web--> beeper repo --> settings --> hooks --> add hook --> find and add this hook <External Async Post Receive Hook>
+
+2、configure the <External Async Post Receive Hook> on stash web
+Executeable path:      /usr/local/atlassian-stash/external-hooks/stash_hooks.sh
+Positional parameters: auto_trigger_by_git_beeper_repo
+click save and exit
+
+3、on the stash server
+under stash root dir:
+mkdir -p /usr/local/atlassian-stash/external-hook/log
+cd /usr/local/atlassian-stash/external-hook
+wget http://192.168.1.121:7990/projects/BEEPER/repos/yunniao_release/browse/stash_hooks.sh
+chmod +x stash_hooks.sh
+
+ps. stash_hooks trigger publish server to auto publish by ssh remote execute commands as stash-hooks-auto-publish user on the publish server.
+
+4、on the publish server
+under pushlish root dir: /backup/autoshell
+mkdir /backup/autoshell/log
+mkdir /backup/autoshell/tmp
+cd /backup/autoshell
+wget http://192.168.1.121:7990/projects/BEEPER/repos/yunniao_release/browse/yunniao_release.sh
+wget http://192.168.1.121:7990/projects/BEEPER/repos/yunniao_release/browse/yunniao_release.conf
+chmod +x yunniao_release.sh
+chown ynrelease.ynrelease /backup/autoshell -R
+
+5、configure for publish user automaticly go to  publish system when they login from ssh
+tail -n 8 /etc/bashrc
+###add by lai for yunniao release system
+if [ $UID -ge 10000 ] && [ $UID -lt 10050 ];then
+	#echo 发布用户:$UID
+	shell_script_path=/backup/autoshell/yunniao_release.sh
+	log_file_name=/backup/autoshell/log/$(date +%Y%m%d)_screen_$(whoami)
+	exec /usr/bin/script -q -t -c "$shell_script_path" 2>$log_file_name.date  -a  -f $log_file_name.log
+fi
+
+ps1. publish user is a normal linux system user and whoes uid must range from 10000 to 10050 for your convenience,
+    and whoes must be a member of ynrelease group.
+
+ps2. publish server trigger web server to update by ssh remote execute commands as www user on the web server.
+
+6、on the web server
+under the web root dir: /var/www/beeper_v2
+chown www.www /var/www/beeper_v2 -R
+
+and add the www user's ssh public key to the stash server for automaticly update local code without inputting a password.
+
+
+7、server side configuriton is done.
+
+
+b、使用
+1、user manually trigger pushlish process: ssh yourusername@192.168.100.119
+
+2、trigger by stash hooks when git user made a push operation,it is controlled by hooks on the stash server without manual intervence.
+
+3、browse the publish log details at http://192.168.1.121/stash_hooks_auto_publish_log
+
+
+last,good luck for you,any questions is  welcome to contack with laijingli@weiboyi.com
+
+
