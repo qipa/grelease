@@ -1,11 +1,15 @@
-云鸟发布系统配置及使用说明
+Grelease发布系统配置及使用说明
+
+为保证最佳的使用体验请各位使用最新的v3版本
+
+详细使用说明参见：grelease使用说明.pdf
 
 a、配置
 
 1、stash web--> beeper repo --> settings --> hooks --> add hook --> find and add this hook <External Async Post Receive Hook>
 
 2、configure the <External Async Post Receive Hook> on stash web
-Executeable path:      /usr/local/atlassian-stash/external-hooks/stash_hooks.sh
+Executeable path:      /usr/local/atlassian-stash/external-hooks/stash_hooks_v3.sh
 Positional parameters: auto_trigger_by_git_beeper_repo
 click save and exit
 
@@ -13,8 +17,8 @@ click save and exit
 under stash root dir:
 mkdir -p /usr/local/atlassian-stash/external-hook/log
 cd /usr/local/atlassian-stash/external-hook
-wget http://192.168.1.121:7990/projects/BEEPER/repos/yunniao_release/browse/stash_hooks.sh
-chmod +x stash_hooks.sh
+wget https://raw.githubusercontent.com/LaiJingli/grelease/master/stash_hooks_v3.sh
+chmod +x stash_hooks_v3.sh
 
 ps. stash_hooks trigger publish server to auto publish by ssh remote execute commands as stash-hooks-auto-publish user on the publish server.
 
@@ -23,9 +27,9 @@ under pushlish root dir: /backup/autoshell
 mkdir /backup/autoshell/log
 mkdir /backup/autoshell/tmp
 cd /backup/autoshell
-wget http://192.168.1.121:7990/projects/BEEPER/repos/yunniao_release/browse/yunniao_release.sh
-wget http://192.168.1.121:7990/projects/BEEPER/repos/yunniao_release/browse/yunniao_release.conf
-chmod +x yunniao_release.sh
+wget https://raw.githubusercontent.com/LaiJingli/grelease/master/yunniao_release_v3.sh
+wget https://raw.githubusercontent.com/LaiJingli/grelease/master/yunniao_release_v3.conf
+chmod +x yunniao_release_v3.sh
 chown ynrelease.ynrelease /backup/autoshell -R
 
 5、configure for publish user automaticly go to  publish system when they login from ssh
@@ -33,7 +37,7 @@ tail -n 8 /etc/bashrc
 ###add by lai for yunniao release system
 if [ $UID -ge 10000 ] && [ $UID -lt 10050 ];then
 	#echo 发布用户:$UID
-	shell_script_path=/backup/autoshell/yunniao_release.sh
+	shell_script_path=/backup/autoshell/yunniao_release_v3.sh
 	log_file_name=/backup/autoshell/log/$(date +%Y%m%d)_screen_$(whoami)
 	exec /usr/bin/script -q -t -c "$shell_script_path" 2>$log_file_name.date  -a  -f $log_file_name.log
 fi
