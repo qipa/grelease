@@ -127,8 +127,11 @@ function_git_show_remote_release_branchs (){
 	####show服务器当前发布branch版本
 	current_local_release_version=`git branch|grep ^* |cut -d" " -f2`
 	echo "列出stash远程服务器上比当前发布版本高的、可发布的(最多列出10个即将发布版本)release branch:"
-	git branch -a|grep "remotes/origin/release/"|grep -A 10 remotes/origin/$current_local_release_version$  \
-		     |grep -v remotes/origin/$current_local_release_version$ > $candidate_version
+	#git branch -a|grep "remotes/origin/release/"|grep -A 10 remotes/origin/$current_local_release_version$  \
+	#	     |grep -v remotes/origin/$current_local_release_version$ > $candidate_version
+	###解决带小数位版本号的排序问题
+	git branch -a|grep remotes/origin/release|awk -F / '{print $4}'|sort -t . -k1,1n -k2,2n|awk '{print "remotes/origin/release/" $1}' \
+		     |grep -A 10 remotes/origin/$current_local_release_version$|grep -v remotes/origin/$current_local_release_version$ > $candidate_version
 	###如果当前远程stash服务器上没有可发布的版本,则提示后直接退出
 	if [ -s $candidate_version ];then
 		echo 远程服务器上有可发布的版本	
